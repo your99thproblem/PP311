@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<form id="form1" action="#" th:action="@{/new_user}" th:object="${user}" method="post"></form>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Users</title>
+</head>
+<body>
+<div align="center">
+    <h2>Users</h2>
+        <h3><a href="/new_user">New User</a></h3>
+
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>E-mail</th>
+            <th>Address</th>
+            <th>Action</th>
+        </tr>
+        <tr th:each="user : ${listUser}">
+            <td th:utext="${user.id}">id</td>
+            <td th:utext="${user.name}">name</td>
+            <td th:utext="${user.email}">email</td>
+            <td th:utext="${user.address}">address</td>
+            <td>
+                <form action="#" th:action="@{'/edit/{id}'(id=${user.id})}" th:method="post">
+                    <button type="submit" class="btn">
+                        Edit
+                    </button>
+                </form>
+
+                <form action="#" th:action="@{'/delete/{id}'(id=${user.id})}" th:method="post">
+                    <button type="submit" class="btn">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        </forEach>
+    </table>
+</div>
+</body>
+</html>
