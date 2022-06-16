@@ -45,7 +45,7 @@
 <body>
 <h1>Edit user profile</h1>
 
-<form action="#" th:action="@{/update/{id}(id=${user.id})}" th:object="${user}" method="post">
+<form action="#" th:action="@{/users/update/{id}(id=${user.id})}" th:object="${user}" method="post">
   <div>
     <label for="name">First name</label>
     <input type="text" th:field="*{name}" id="name" placeholder="Name">

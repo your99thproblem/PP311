@@ -1,8 +1,9 @@
 package web.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.*;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -14,17 +15,30 @@ import java.util.Properties;
 
 
 @Configuration
-@ComponentScan (basePackages = {"web"})
+@PropertySource("classpath:db.properties")
+@ComponentScan(value = "web")
 @EnableTransactionManagement
 public class JpaDbConf {
+    @Autowired
+    private Environment env;
+
+
+    private Properties hibernateProperties() {
+        Properties properties = new Properties();
+        properties.put("hibernate.hbm2ddl.auto", env.getRequiredProperty("hibernate.hbm2ddl.auto"));
+        properties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
+        properties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
+        return properties;
+    }
+
     @Bean
     DriverManagerDataSource getDataSource() {
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        ds.setUrl("jdbc:mysql://10.115.115.61:3306/KATA?verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&amp&serverTimezone=UTC");
-        ds.setUsername("admin");
-        ds.setPassword("Denis_16");
-        return ds;
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(env.getProperty("db.driver"));
+        dataSource.setUrl(env.getProperty("db.url"));
+        dataSource.setUsername(env.getProperty("db.username"));
+        dataSource.setPassword(env.getProperty("db.password"));
+        return dataSource;
     }
 
     @Bean
@@ -32,7 +46,7 @@ public class JpaDbConf {
         LocalContainerEntityManagerFactoryBean fb = new LocalContainerEntityManagerFactoryBean();
         fb.setDataSource(getDataSource());
         fb.setPackagesToScan("web.model");
-        fb.setJpaProperties(additionalProperties());
+        fb.setJpaProperties(hibernateProperties());
         fb.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         return fb;
     }
@@ -49,12 +63,5 @@ public class JpaDbConf {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
-    Properties additionalProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "update");
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
 
-        return properties;
-
-    }
 }
